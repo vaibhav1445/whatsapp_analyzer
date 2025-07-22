@@ -4,6 +4,36 @@ extract =  URLExtract()
 import pandas as pd
 from collections import Counter
 import emoji
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+def knn_train_and_predict(df, test_size=0.2, k=3):
+    df = df[df['user'] != 'group_notification']
+    df = df[df['message'].str.strip() != '']  # Remove empty messages
+
+    if df.empty:
+        return None, None, None
+
+    vectorizer = TfidfVectorizer(stop_words='english')
+    X = vectorizer.fit_transform(df['message'])
+    y = df['user']
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+
+    model = KNeighborsClassifier(n_neighbors=k)
+    model.fit(X_train, y_train)
+
+    acc = accuracy_score(y_test, model.predict(X_test))
+
+    return model, vectorizer, acc
+
+
+analyzer = SentimentIntensityAnalyzer()
+
 def fetch_stats(selected_user, df):
     if selected_user != 'Overall':
         # Filter DataFrame for the selected user
@@ -28,6 +58,18 @@ def fetch_stats(selected_user, df):
 
     return num_messages, len(words), num_media_messages,len(links)
 
+def get_sentiment_analysis(user, df):
+    if user != 'Overall':
+        df = df[df['user'] == user]
+
+    sentiments = df['message'].apply(lambda msg: analyzer.polarity_scores(msg)['compound'])
+
+    df['sentiment_score'] = sentiments
+    df['sentiment'] = df['sentiment_score'].apply(
+        lambda x: 'Positive' if x > 0.05 else ('Negative' if x < -0.05 else 'Neutral'))
+
+    sentiment_counts = df['sentiment'].value_counts()
+    return df, sentiment_counts
 def most_busy_user(df):
     x = df['user'].value_counts().head()
     df=round((df['user'].value_counts() / df.shape[0]) * 100).reset_index().rename(
