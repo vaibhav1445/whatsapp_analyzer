@@ -57,7 +57,7 @@ whatsapp-chat-analyzer/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/vaibhav1445/whatsapp-chat-analyzer.git
+git clone https://github.com/vaibhav1445/whatsapp-analyzer.git
 cd whatsapp-chat-analyzer
 cd app
 ```
@@ -105,6 +105,6 @@ Licensed under the **MIT License**. See [`LICENSE`](./LICENSE) for details.
 
 ## ⭐ Show Your Support
 
-If you found this project helpful, give it a ⭐ on [GitHub](https://github.com/vaibhav1445/whatsapp-chat-analyzer)!
+If you found this project helpful, give it a ⭐ on [GitHub](https://github.com/vaibhav1445/whatsapp-analyzer)!
 
 > Made with ❤️ using Python and Streamlit by Vaibhav Srivastava
