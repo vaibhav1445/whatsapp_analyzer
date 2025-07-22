@@ -42,7 +42,7 @@
 ## 📁 Project Structure
 
 ```
-whatsapp-chat-analyzer/
+whatsapp-analyzer/
 ├── app.py              # Main Streamlit app logic
 ├── preprocessor.py     # Data preprocessing (timestamp parsing, etc.)
 ├── helper.py           # Stats, emoji, and user activity functions
@@ -58,7 +58,6 @@ whatsapp-chat-analyzer/
 
 ```bash
 git clone https://github.com/vaibhav1445/whatsapp-analyzer.git
-cd whatsapp-chat-analyzer
 cd app
 ```
 
