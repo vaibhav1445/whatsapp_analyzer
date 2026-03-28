@@ -81,6 +81,7 @@ def create_wordCloud(selected_user, df):
 
     temp = df[df['user'] != 'group_notification']
     temp = temp[temp['message'] != '<Media omitted>\n']
+    temp = temp[temp['message'].str.strip() != '']
 
     if temp.empty:
         return None
@@ -92,10 +93,30 @@ def create_wordCloud(selected_user, df):
                 y.append(word)
         return " ".join(y)
 
-    wc = WordCloud(width=500, height=500, min_font_size=10, background_color='white')
+    temp = temp.copy()
     temp['message'] = temp['message'].apply(remove_stopwords)
-    df_wc = wc.generate(" ".join(temp['message'].dropna()))
-    return df_wc
+    temp = temp[temp['message'].str.strip() != '']
+
+    # Fallback — use original messages if everything got filtered
+    if temp.empty:
+        temp = df[df['user'] != 'group_notification']
+        temp = temp[temp['message'] != '<Media omitted>\n']
+        temp = temp[temp['message'].str.strip() != '']
+
+    if temp.empty:
+        return None
+
+    combined_text = " ".join(temp['message'].dropna()).strip()
+
+    if not combined_text:
+        return None
+
+    wc = WordCloud(width=500, height=500, min_font_size=10, background_color='white')
+    try:
+        df_wc = wc.generate(combined_text)
+        return df_wc
+    except ValueError:
+        return None
 
 def most_common_words(selected_user, df):
     f = open(os.path.join(BASE_DIR, 'stop_hinglish.txt'), 'r')

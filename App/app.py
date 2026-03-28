@@ -114,12 +114,18 @@ if uploaded_file is not None:
 
 
         st.markdown("---")
+        
         st.title("☁️ Word Cloud")
         df_wc = helper.create_wordCloud(selected_user, df)
-        fig, ax = plt.subplots()
-        ax.imshow(df_wc)
-        ax.axis("off")
-        st.pyplot(fig)
+        
+        if df_wc is not None:
+            fig, ax = plt.subplots()
+            ax.imshow(df_wc)
+            ax.axis("off")
+            st.pyplot(fig)
+            
+        else:
+            st.warning("⚠️ Not enough words to generate a Word Cloud for this user.")
 
 
         st.markdown("---")
