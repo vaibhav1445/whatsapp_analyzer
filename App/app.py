@@ -8,7 +8,7 @@ import helper
 # Sidebar
 st.sidebar.title("📊 WhatsApp Chat Analyzer")
 
-uploaded_file = st.sidebar.file_uploader("📁 Choose a WhatsApp chat file")
+uploaded_file = st.sidebar.file_uploader("📁 Choose a WhatsApp chat file in TXT format")
 
 if uploaded_file is not None:
     # Decode file
@@ -18,6 +18,8 @@ if uploaded_file is not None:
 
     # User selection
     user_list = df['user'].unique().tolist()
+    # NEW - safely removes only if it exists
+if 'group_notification' in user_list:
     user_list.remove('group_notification')
     user_list.sort()
     user_list.insert(0, "Overall")
