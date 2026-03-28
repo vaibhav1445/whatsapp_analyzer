@@ -15,6 +15,9 @@ if uploaded_file is not None:
     bytes_data = uploaded_file.getvalue()
     data = bytes_data.decode("utf-8")
     df = preprocessor.preprocess(data)
+    if df.empty or 'user' not in df.columns:
+        st.error("⚠️ Could not read this chat file. Please upload a valid WhatsApp chat export (.txt)")
+        st.stop()
 
     # User selection
     user_list = df['user'].unique().tolist()
