@@ -2,11 +2,11 @@ import re
 import pandas as pd
 
 def preprocess(data):
-    # Pattern with square brackets, seconds, and AM/PM
-    pattern = r'\[(\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}:\d{2}\s(?:AM|PM|am|pm))\]\s'
-    
-    messages = re.split(pattern, data)[::2][1:]  # Extract messages
-    dates = re.findall(pattern, data)             # Extract dates
+    # Matches: 22/02/23, 2:46 pm -
+    pattern = r'\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}\s(?:am|pm|AM|PM)\s-\s'
+
+    messages = re.split(pattern, data)[1:]
+    dates = re.findall(pattern, data)
 
     if not messages or not dates:
         return pd.DataFrame()
@@ -15,10 +15,10 @@ def preprocess(data):
 
     def parse_date(date_str):
         formats = [
-            '%d/%m/%y, %I:%M:%S %p',
-            '%d/%m/%Y, %I:%M:%S %p',
-            '%m/%d/%y, %I:%M:%S %p',
-            '%m/%d/%Y, %I:%M:%S %p',
+            '%d/%m/%y, %I:%M %p - ',
+            '%d/%m/%Y, %I:%M %p - ',
+            '%m/%d/%y, %I:%M %p - ',
+            '%m/%d/%Y, %I:%M %p - ',
         ]
         for fmt in formats:
             try:
