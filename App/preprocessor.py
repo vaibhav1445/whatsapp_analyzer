@@ -1,42 +1,50 @@
 import re
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 
-# Define the preprocess function
 def preprocess(data):
-    pattern = r'\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2} - '
-    messages = re.split(pattern, data)[1:]
-    dates = re.findall(pattern, data)
+    # Pattern with square brackets, seconds, and AM/PM
+    pattern = r'\[(\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}:\d{2}\s(?:AM|PM|am|pm))\]\s'
+    
+    messages = re.split(pattern, data)[::2][1:]  # Extract messages
+    dates = re.findall(pattern, data)             # Extract dates
+
+    if not messages or not dates:
+        return pd.DataFrame()
 
     df = pd.DataFrame({'user_message': messages, 'message_date': dates})
-    df['message_date'] = pd.to_datetime(df['message_date'], format='%d/%m/%Y, %H:%M - ')
 
-    def safe_convert_date(date_str):
-        try:
-            return pd.to_datetime(date_str, format='%d/%m/%Y, %H:%M -', errors='raise')
-        except Exception:
-            return pd.NaT
+    def parse_date(date_str):
+        formats = [
+            '%d/%m/%y, %I:%M:%S %p',
+            '%d/%m/%Y, %I:%M:%S %p',
+            '%m/%d/%y, %I:%M:%S %p',
+            '%m/%d/%Y, %I:%M:%S %p',
+        ]
+        for fmt in formats:
+            try:
+                return pd.to_datetime(date_str.strip(), format=fmt)
+            except:
+                continue
+        return pd.NaT
 
-    df['date'] = df['message_date'].apply(safe_convert_date)
+    df['date'] = df['message_date'].apply(parse_date)
     df.drop(columns=['message_date'], inplace=True)
+    df = df.dropna(subset=['date'])
 
     users = []
-    messages = []
+    messages_list = []
 
     for message in df['user_message']:
         entry = re.split(r'([\w\W]+?):\s', message)
         if entry[1:]:
             users.append(entry[1])
-            messages.append(entry[2])
+            messages_list.append(entry[2])
         else:
             users.append('group_notification')
-            messages.append(entry[0])
+            messages_list.append(entry[0])
 
     df['user'] = users
-    df['message'] = messages
+    df['message'] = messages_list
     df.drop(columns=['user_message'], inplace=True)
 
     df['only_date'] = df['date'].dt.date
@@ -59,6 +67,3 @@ def preprocess(data):
     df['period'] = period
 
     return df
-
-
-
