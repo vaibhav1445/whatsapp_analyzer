@@ -7,3 +7,4 @@ wordcloud
 emoji
 vaderSentiment
 scikit-learn
+groq
